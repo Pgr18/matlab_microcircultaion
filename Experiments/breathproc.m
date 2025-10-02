@@ -27,6 +27,8 @@ BR1 = RHEO1 - BR1_LINE.';
 BR2 = RHEO2 - BR2_LINE.';
 
 CYCLE_BR = CYCLE;
+% CYCLE_BR{i}.RHEO1 = lowpass(CYCLE{i}.RHEO1,0.1,200);
+% CYCLE_BR{i}.RHEO2 = lowpass(CYCLE{i}.RHEO2,0.1,200);
 k = 0;
 for i=1:N
     for j=1:length(CYCLE_BR{i}.TIME)
@@ -35,7 +37,6 @@ for i=1:N
         CYCLE_BR{i}.RHEO2(j) = BR2(k);
     end
 end
-
 fig = figure('Name',name,'NumberTitle','off', ...
     'Color','white', 'units','normalized','outerposition',[0 0 1 1]);
 tiledlayout(3,1)
@@ -65,5 +66,4 @@ if status == 1
     saveas(fig,strcat(path,name,'.fig'))
     close(fig)
 end
-
 end

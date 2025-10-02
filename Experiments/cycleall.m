@@ -74,7 +74,7 @@ ax4 = nexttile;
 %plot(data.DATE,data.BASE2*0.1203,'.')
 %ylabel('\rho кажущееся, Ом*м')
 yyaxis left
-plot(data.DATE,data.RHEO2,LineWidth=3)
+plot(data.DATE,-data.RHEO2,LineWidth=3)
 ylabel('Импеданс, мОм')
 ylim([-50 50])
 yyaxis right
