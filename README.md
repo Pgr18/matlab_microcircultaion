@@ -8,9 +8,7 @@ MATLAB scripts for microcirculation data processing
     experiments
     |-DATA
     |-Лазма 
-    
     |   |-F_xx.txt 
-    
     |-impedance.csv
 Всё остальное будет создано автоматически при работе скрипта main.m.
 # Планы
