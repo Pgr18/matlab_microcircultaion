@@ -60,7 +60,7 @@ ser_back = 0;
 ax = zeros(1,6);
 
 %% ============ Noise cancelation(Filtering)( 5-15 Hz) =============== %%
-if fs == 200
+if fs == 200.0
 % ------------------ remove the mean of Signal -----------------------%
   ecg = ecg - mean(ecg);
 %% ==== Low Pass Filter  H(z) = ((1 - z^(-6))^2)/(1 - z^(-1))^2 ==== %%

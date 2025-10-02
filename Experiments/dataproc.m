@@ -1,24 +1,24 @@
-function PARAM = dataproc(DATA,path)
+function PARAM = dataproc(DATA1,path)
 
 PARAM = table;
 n = 0;
-for k=1:length(DATA)
+for k=1:length(DATA1)
 
-    CYCLE{k}.NAME = DATA{k}.NAME;
-    CYCLE{k}.TIME = DATA{k}.TIME;
-    CYCLE{k}.RHEO1 = -DATA{k}.RHEO1;
+    CYCLE{k}.NAME = DATA1{k}.NAME;
+    CYCLE{k}.TIME = DATA1{k}.TIME;
+    CYCLE{k}.RHEO1 = -DATA1{k}.RHEO1;
     %CYCLE{k}.BASE1 = mean(DATA{k}.BASE1);
-    CYCLE{k}.BASE1 = DATA{k}.BASE1;
-    CYCLE{k}.QS1 = mean(DATA{k}.QS1);
-    CYCLE{k}.ECG = DATA{k}.ECG;
-    CYCLE{k}.RHEO2 = -DATA{k}.RHEO2;
+    CYCLE{k}.BASE1 = DATA1{k}.BASE1;
+    CYCLE{k}.QS1 = mean(DATA1{k}.QS1);
+    CYCLE{k}.ECG = DATA1{k}.ECG;
+    CYCLE{k}.RHEO2 = -DATA1{k}.RHEO2;
     %CYCLE{k}.BASE2 = mean(DATA{k}.BASE2);
-    CYCLE{k}.BASE2 = DATA{k}.BASE2;
-    CYCLE{k}.QS2 = mean(DATA{k}.QS2);
+    CYCLE{k}.BASE2 = DATA1{k}.BASE2;
+    CYCLE{k}.QS2 = mean(DATA1{k}.QS2);
     
     CYCLE{k}.dRHEO1(1) = 0;
     CYCLE{k}.dRHEO2(1) = 0;
-    for i=2:length(DATA{k}.TIME)
+    for i=2:length(DATA1{k}.TIME)
        CYCLE{k}.dRHEO1(i) = CYCLE{k}.RHEO1(i) - CYCLE{k}.RHEO1(i-1);
        CYCLE{k}.dRHEO2(i) = CYCLE{k}.RHEO2(i) - CYCLE{k}.RHEO2(i-1);
     end
@@ -57,15 +57,15 @@ for k=1:length(DATA)
        PARAM.NAME(n) = CYCLE{k}.NAME;
 
        %длительность цикла
-       PARAM.RR(n) = CYCLE{k}.TIME(length(DATA{k}.TIME));
+       PARAM.RR(n) = CYCLE{k}.TIME(length(DATA1{k}.TIME));
 
        %время подъема восходящей части
        PARAM.alpha1(n) = CYCLE{k}.TIME(CYCLE{k}.RHEO1_MAX_I);
        PARAM.alpha2(n) = CYCLE{k}.TIME(CYCLE{k}.RHEO2_MAX_I);
 
        %время спуска нисходящей части
-       PARAM.beta1(n) = CYCLE{k}.TIME(length(DATA{k}.TIME)) - CYCLE{k}.TIME(CYCLE{k}.RHEO1_MAX_I);
-       PARAM.beta2(n) = CYCLE{k}.TIME(length(DATA{k}.TIME)) - CYCLE{k}.TIME(CYCLE{k}.RHEO2_MAX_I);
+       PARAM.beta1(n) = CYCLE{k}.TIME(length(DATA1{k}.TIME)) - CYCLE{k}.TIME(CYCLE{k}.RHEO1_MAX_I);
+       PARAM.beta2(n) = CYCLE{k}.TIME(length(DATA1{k}.TIME)) - CYCLE{k}.TIME(CYCLE{k}.RHEO2_MAX_I);
 
        %время быстрого кровенаполнения
        PARAM.f1(n) = CYCLE{k}.TIME(CYCLE{k}.dRHEO1_MAX_I);
@@ -96,10 +96,10 @@ for k=1:length(DATA)
        PARAM.dR2r(n) = PARAM.dR2(n)/mean(CYCLE{k}.BASE2);
         
        % Кровенаполнение кожно-жирового слоя
-       PARAM.dV(n) = dvolume(PARAM.dR1(n));
+       %PARAM.dV(n) = dvolume(PARAM.dR1(n));
 
        %Индекс флаксомоций
-       PARAM.flux(n) = filtering(CYCLE{k}.RHEO1);
+       %PARAM.flux(n) = filtering(CYCLE{k}.RHEO1);
        
  
     end

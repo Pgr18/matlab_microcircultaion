@@ -27,7 +27,7 @@ xline(TT.DATE,'--',TT.DESC)
 % ylabel('\DeltaR, пульсовое сопротивление, Ом') 
 % grid on
 % grid minor
-% xline(TT.DATE,'--')
+xline(TT.DATE,'--')
 % Second plot
 ax2 = nexttile;
 %plot(data.DATE,data.RHEO1*0.0708/1000,'.',data.DATE,data.RHEO2*0.1203/1000,'.')

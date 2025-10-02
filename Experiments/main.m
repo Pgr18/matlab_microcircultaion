@@ -3,12 +3,13 @@
 clear all
 close all
 
-NAME = '2024-12-19'; %Название папки с данными
+NAME = '2025-04-18'; %Название папки с данными
 NEW = 0; %Обновить данные из текстовых: 0-нет, 1-МГТУ, 2-РНЦХ
 CYCLE_KEY = 1; %Обновить данные циклов
 CYCLE_FIND = 'REO1'; %Алгоритм определения циклов по ECGP, ECGN, REO1, REO2
-LDF_fl = 0;% Флаг наличия ЛДФ-сигналов
-
+LDF_fl = 1;% Флаг наличия ЛДФ-сигналов
+ecg_filt_thr = 0.3;
+filt_fl = 1; %0 - без двойной фильтрации, 1 - с ней
 %Чтение файла расписания процедуры
 TT = importtt(strcat('DATA/',NAME,'/TIMETABLE.xlsx'),NAME);
 
@@ -17,7 +18,6 @@ TT = importtt(strcat('DATA/',NAME,'/TIMETABLE.xlsx'),NAME);
 
 %Чтение файлов из папки и сохранение объединенного файла
 if NEW ~= 0
-
     readall(strcat('DATA/',NAME,'/'),strcat('OUT/',NAME,'/'),NEW);
     if LDF_fl == 1
         read_LDF(strcat('DATA/',NAME,'/Лазма/'),strcat('OUT/',NAME,'/'),NEW);
@@ -34,30 +34,46 @@ end
 if LDF_fl == 0
     DATA_LDF = 0;
 end
+%TT = 0;
 plotall(DATA,DATA_LDF,strcat('PLOTS/',NAME,'/'),'DATA_RAW',TT,LDF_fl);
 %Визуализация вейвлет-анализа данных
 %plotwv(DATA,strcat('PLOTS/',NAME,'/'),'DATA_RAW_WV',TT);
 
 %Чтение файла битых данных
 BT = importbt(strcat('DATA/',NAME,'/BROKENDATA.xlsx'),NAME);
-BT = 0;
+%BT = 0;
 if istable(BT)
     %Удаление битых данных, если они есть
     [DATA_CL, TT_CL] = databt(DATA,TT,BT);
-    
+    DATA_CL = DATA_CL(abs(DATA_CL.ECG)<ecg_filt_thr,:);
+    DATA_CL = DATA_CL(abs(DATA_CL.RHEO2)<200,:);
+    DATA_CL = DATA_CL(abs(DATA_CL.RHEO1)<200,:);
+    %эксперимент - ФНЧ
+    %DATA_CL.RHEO1 = lowpass(DATA_CL.RHEO1,50,200);
+    if (NAME == '2025-08-28')
+        DATA_CL.BASE2(DATA_CL.BASE2<20) = 3*DATA_CL.BASE2(DATA_CL.BASE2<20);
+    end
+    %DATA_CL.RHEO2 = lowpass(DATA_CL.RHEO2,50,200);
     %Визуализация данных без битых, если они есть
-    plotall(DATA_CL,strcat('PLOTS/',NAME,'/'),'DATA_CL',TT_CL);
+    plotall(DATA_CL,DATA_LDF,strcat('PLOTS/',NAME,'/'),'DATA_CL',TT_CL,LDF_fl);
 
     %Визуализация вейвлет-анализа данных
     %plotwv(DATA_CL,strcat('PLOTS/',NAME,'/'),'DATA_CL_WV',TT_CL);
 else
     DATA_CL = DATA;
+    DATA_CL = DATA_CL(abs(DATA_CL.ECG)<ecg_filt_thr,:);
+    DATA_CL = DATA_CL(abs(DATA_CL.RHEO2)<200,:);
+    DATA_CL = DATA_CL(abs(DATA_CL.RHEO1)<200,:);
     TT_CL = TT;
+    plotall(DATA_CL,DATA_LDF,strcat('PLOTS/',NAME,'/'),'DATA_CL',TT_CL,LDF_fl);
 end
 
 %Разбиение данных на циклы и их сохранение
 if CYCLE_KEY ~= 0
-    dataproccycle(DATA_CL,strcat('OUT/',NAME,'/'),CYCLE_FIND);
+    dataproccycle(DATA_CL,strcat('OUT/',NAME,'/'),CYCLE_FIND,filt_fl);
+    CYCLE_FIND = 'ECGN';
+    filt_fl = 0;
+    dataproccycle(DATA_CL,strcat('OUT/',NAME,'/'),CYCLE_FIND,filt_fl);
 end
 
 %Чтение данных циклов из папки
@@ -65,7 +81,7 @@ load(strcat('OUT/',NAME,'/CYCLE_DATA.mat'));
 
 %Визуализация данных всех циклов
 %cycleall(CYCLE_DATA,strcat('PLOTS/',NAME,'/'),'DATA_CYCLES',TT_CL);
-CYCLE_BR = breathproc(CYCLE_DATA,strcat('PLOTS/',NAME,'/'),'BREATHE');
+
 %Разбиение циклов на вдох и выдох
 
 %ClusterBR(CYCLE_BR,strcat('OUT/',NAME,'/'));
@@ -83,7 +99,7 @@ CYCLE_BR = breathproc(CYCLE_DATA,strcat('PLOTS/',NAME,'/'),'BREATHE');
 %monoplot(FORM_EXH,strcat('PLOTS/',NAME,'/CYCLES_FORM/'),'Exhale');
 %monoplot1(FORM_INH,FORM_EXH,strcat('PLOTS/',NAME,'/CYCLES_FORM/Pres/'),'pres');
 %Удаление кривой дыхания в сигнале импеданса и сохранение данных
-
+CYCLE_BR = breathproc(CYCLE_DATA,strcat('PLOTS/',NAME,'/'),'BREATHE');
 
 %Обработка данных, разбиение на циклы и их визуализация
 dataproc(CYCLE_BR,strcat('OUT/',NAME,'/'));
@@ -96,9 +112,9 @@ load(strcat('OUT/',NAME,'/PARAM.mat'));
 cycleall(CYCLE_BR,DATA_LDF,strcat('PLOTS/',NAME,'/'),'DATA_CYCLES_BR',TT_CL,LDF_fl);
 
 %Визуализация параметров всех циклов
-param_plot_REO_Time(PARAM,strcat('PLOTS/',NAME,'/'),'PARAM_Time',TT_CL);
+%param_plot_REO_Time(PARAM,strcat('PLOTS/',NAME,'/'),'PARAM_Time',TT_CL);
 param_plot_REO_Amp(PARAM,strcat('PLOTS/',NAME,'/'),'PARAM_Amp',TT_CL);
-param_plot_REO(PARAM,strcat('PLOTS/',NAME,'/'),'PARAM_Reo',TT_CL);
+%param_plot_REO(PARAM,strcat('PLOTS/',NAME,'/'),'PARAM_Reo',TT_CL);
 
 OD = 0;
 if istable(OD)

@@ -16,12 +16,12 @@ xline(TT.DATE,'--',TT.DESC)
 
 % Second plot
 ax2 = nexttile;
-plot(PARAM.NAME,PARAM.dR1,'o',...
-    PARAM.NAME,PARAM.dR2,'*')
+plot(PARAM.NAME,PARAM.dR1/PARAM.dR2,'o');%,...
+    %PARAM.NAME,PARAM.dR2,'*'
 disp(mean(PARAM.dR1));
 disp(mean(PARAM.dR2));
-title('Основная амплитуда реограммы')
-ylabel('b, Ohm')
+title('Отношение основных амплитуд реограмм')
+ylabel('R1/R2, Ohm')
 grid on
 grid minor
 xline(TT.DATE,'--',TT.DESC)
